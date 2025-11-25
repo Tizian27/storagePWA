@@ -5,21 +5,31 @@
   <title>Lagerbestand</title>
   <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#2563eb">
 </head>
 <body>
+
   <h1>Lagerbestand</h1>
 
-  <!-- Buttonleiste -->
+  <!-- Eingabefelder -->
+  <div class="input-fields">
+    <input id="input-name" type="text" placeholder="Produktname">
+    <input id="input-qty" type="number" placeholder="Menge" min="1">
+  </div>
+
+  <!-- Buttons -->
   <div class="actions">
     <button id="btn-add">Artikel hinzufügen</button>
     <button id="btn-remove">Artikel entnehmen</button>
     <button id="btn-generate">Liste generieren</button>
   </div>
 
-  <!-- Einfache Ausgabe der aktuellen Liste -->
   <h2>Aktuelle Artikel</h2>
   <ul id="article-list"></ul>
 
+  <!-- Scripts lieber am Ende laden -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -1,51 +1,125 @@
-// Einfaches Datenmodell im Speicher
-const articles = [];
+const saved = localStorage.getItem("lagerartikel");
+let articles = saved ? JSON.parse(saved) : [];
 
-// Referenzen auf DOM Elemente holen
 const addButton = document.getElementById("btn-add");
 const removeButton = document.getElementById("btn-remove");
 const generateButton = document.getElementById("btn-generate");
+
+const inputName = document.getElementById("input-name");
+const inputQty = document.getElementById("input-qty");
+
 const articleList = document.getElementById("article-list");
 
-// Funktion, um die Liste im HTML zu aktualisieren
 function renderArticles() {
-  // Liste erst leeren
   articleList.innerHTML = "";
 
-  // Jeden Artikel aus dem Array als <li> hinzufügen
   articles.forEach((article, index) => {
+    if (article.qty > 0){
     const li = document.createElement("li");
     li.textContent = `${index + 1}. ${article.name} (Menge: ${article.qty})`;
     articleList.appendChild(li);
+  }
   });
 }
 
-// Beispiel Logik für "Artikel hinzufügen"
 addButton.addEventListener("click", () => {
-  // In echt würdest du später einen Dialog oder ein Formular nutzen.
-  // Für den Anfang hart codieren wir einen Testartikel.
-  const newArticle = {
-    name: "Testartikel",
-    qty: 1
-  };
+  const name = inputName.value.trim();
+  const qty = Number(inputQty.value);
+
+  if (!name || qty <= 0) {
+    alert("Bitte Produktname und Menge eingeben");
+    return;
+  }
+
+  const newArticle = { name, qty };
 
   articles.push(newArticle);
   console.log("Artikel hinzugefügt:", newArticle);
-
-  // Oberfläche aktualisieren
+  saveArticles();
   renderArticles();
+
+  inputName.value = "";
+  inputQty.value = "";
 });
 
-// Platzhalter Logik für die anderen Buttons
 removeButton.addEventListener("click", () => {
-  console.log("Artikel entnehmen geklickt");
-  // Hier später: Logik zum Reduzieren von Menge oder Entfernen
+    const name = inputName.value.trim();
+    const qty = Number(inputQty.value);
+    const element = returnElement(name);
+    if(element !== undefined){
+        if(element.qty-qty >= 0){
+            element.qty-=qty
+        }
+    }
+    saveArticles();
+    renderArticles();
+
+  inputName.value = "";
+  inputQty.value = "";
 });
 
 generateButton.addEventListener("click", () => {
-  console.log("Liste generieren geklickt");
-  // Hier später: PDF Logik
+  const listText = generateList();
+
+  // jsPDF aus dem UMD Namespace holen
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const lineHeight = 8;
+  const marginLeft = 10;
+  let cursorY = 20;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+
+  // Titel
+  doc.text("Aktueller Lagerbestand", marginLeft, 10);
+
+  // Text in Zeilen aufsplitten, damit es nicht rechts rausläuft
+  const lines = doc.splitTextToSize(listText, 180);
+
+  lines.forEach(line => {
+    if (cursorY > 280) {
+      doc.addPage();
+      cursorY = 20;
+    }
+    doc.text(line, marginLeft, cursorY);
+    cursorY += lineHeight;
+  });
+
+  // Download starten
+  doc.save("lagerbestand.pdf");
 });
 
-// Erstes Rendering (am Anfang ist die Liste leer)
+
+function returnElement(name){
+    const element =  articles.find(obj => obj.name === name);
+    return element
+}
+
+function generateList() {
+  if (articles.length === 0) {
+    return "Keine Artikel vorhanden";
+  }
+
+  let output = "Aktueller Bestand:\n\n";
+
+  articles.forEach((article, index) => {
+    output += `${index + 1}. ${article.name} – Menge: ${article.qty}\n`;
+  });
+
+  return output;
+}
+
+function saveArticles() {
+  localStorage.setItem("lagerartikel", JSON.stringify(articles));
+}
+
+
 renderArticles();
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(err => {
+    console.error("Service Worker Registrierung fehlgeschlagen", err);
+  });
+}
+

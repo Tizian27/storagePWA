@@ -1,12 +1,25 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF8">
+  <meta charset="UTF-8">
   <title>Lagerbestand</title>
   <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
   <h1>Lagerbestand</h1>
+
+  <!-- Buttonleiste -->
+  <div class="actions">
+    <button id="btn-add">Artikel hinzufügen</button>
+    <button id="btn-remove">Artikel entnehmen</button>
+    <button id="btn-generate">Liste generieren</button>
+  </div>
+
+  <!-- Einfache Ausgabe der aktuellen Liste -->
+  <h2>Aktuelle Artikel</h2>
+  <ul id="article-list"></ul>
+
   <script src="script.js"></script>
 </body>
 </html>
